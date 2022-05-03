@@ -36,7 +36,7 @@ fn main() {
     let max_slices = 16;
 
     // global conditions
-    let mut slices = 0;
+    let mut slices = Vec::new();
 
     // output settings
     let show_global = true;
@@ -48,20 +48,21 @@ fn main() {
     
 		let production_chance: f32 = rng.gen_range(0.0..100.0);
     	if production_chance < 0.01 {
-    		slices += 1;
+    		let pos = Vec2{x: rng.gen::<f32>(), y: rng.gen::<f32>()};
+    		let slice = Slice::new(rng.gen::<f32>(), pos);
+    		slices.push(slice);
+    		
     	}
 
 		// terminal output
 		if show_global {
-	    	println!("slices: {}", slices);
+	    	println!("slices: {}", slices.len());
 		}
 		if show_slices {
 			println!("--- slices ---------------------------------------------------");
-			for n in 1..slices {
-				println!("slice {}", n);
+			for n in 1..slices.len() {
+				println!("slice {}: freq: {} - ({}, {})", n, slices[n-1].freq, slices[n-1].pos.x, slices[n-1].pos.y);
 			}
 		}
     }
-
 }
-
