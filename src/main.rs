@@ -5,52 +5,63 @@ struct Vec2{
     y: f32
 }
 
-struct Spline {
-    aur: f32,
-    aus: f32,
-    aur_sow: bool,
-    aus_sow: bool,
-    pos: Vec2
+struct Slice{
+	freq: f32,
+	pos: Vec2
 }
 
-impl Spline {
-    fn new(aur: f32, aus: f32, aur_sow: bool, aus_sow: bool, pos: Vec2) -> Spline{
-        Spline {
-            aur: aur,
-            aus: aus,
-            aur_sow: aur_sow,
-            aus_sow: aus_sow,
-            pos: pos
-        }
-    }
+impl Slice {
+	fn new(freq: f32, pos: Vec2) -> Slice {
+		Slice {
+			freq: freq,
+			pos: pos
+		}
+	}
 
-    fn get_avg(&self) -> f32 {
-        (self.aur + self.aus)/2.0
-    }
+	fn get_freq (&self) -> f32 {
+		self.freq
+	}
 
-    fn get_status(&self) -> String{
-        if self.aur_sow{
-            "sewn at aurora".to_string()
-        }
-        else if self.aus_sow{
-            "sewn at australis".to_string()
-        }
-        else{
-            "unsewn".to_string()
-        }
-    }
+	/*
+	fn get_pos (&self) -> Tuple {
+		(self.pos.x, self.pos.y)
+	}
+	*/
 }
 
 fn main() {
     let mut rng = rand::thread_rng();
 
-    // starting conditions
-    let starting_splines = 16;
+    // sim  conditions
+    let max_slices = 16;
 
-    for _n in 1..starting_splines {
-        let pos = Vec2{x: rng.gen::<f32>(), y: rng.gen::<f32>()};
-        let s = Spline::new(rng.gen::<f32>(), rng.gen::<f32>(), false, false, pos);
-        println!("spline (x: {}, y: {}): {} w/ avg of {}, aur: {}, aus: {}", s.pos.x, s.pos.y ,s.get_status(), s.get_avg(), s.aur, s.aus)
+    // global conditions
+    let mut slices = 0;
+
+    // output settings
+    let show_global = true;
+    let show_slices = true;
+
+
+    loop {
+		print!("\x1B[2J\x1B[1;1H"); // took 30 minutes to find this, clears the terminal.
+    
+		let production_chance: f32 = rng.gen_range(0.0..100.0);
+    	if production_chance < 0.01 {
+    		slices += 1;
+    	}
+
+		// terminal output
+		if show_global {
+	    	println!("slices: {}", slices);
+		}
+		if show_slices {
+			println!("--- slices ---------------------------------------------------");
+			for n in 1..slices {
+				println!("slice {}", n);
+			}
+		}
     }
 
 }
+
