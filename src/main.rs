@@ -1,4 +1,5 @@
 use rand::Rng;
+
 struct Vec2{
     x: f32,
     y: f32
@@ -51,9 +52,10 @@ fn main() {
 		let production_chance: f32 = rng.gen_range(0.0..100.0);
 		
     	if production_chance < 0.01 && slices.len() < max_slices {
+    		let freq = rng.gen::<f32>()*100.0;
     		let pos = Vec2{x: rng.gen::<f32>(), y: rng.gen::<f32>()};
     		let mvec = Vec2{x: rng.gen::<f32>(), y: rng.gen::<f32>()}; 
-    		let slice = Slice::new(rng.gen::<f32>(), pos, mvec);
+    		let slice = Slice::new(freq, pos, mvec);
     		slices.push(slice);
     	}
 
@@ -62,6 +64,7 @@ fn main() {
     		slices[n-1].pos.y += slices[n-1].mvec.y;
 
 			let direction_chance:f32 = rng.gen_range(0.0..100.0);
+			// please improve, probably with a function but I couldn't be bothered
     		if direction_chance < 0.005 {
     			slices[n-1].mvec.x = rng.gen::<f32>();
     			let negchance_x:i8 = rng.gen_range(0..100);
@@ -87,6 +90,7 @@ fn main() {
 		if show_slices {
 			println!("--- slices ---------------------------------------------------");
 			for n in 1..slices.len() {
+				// format values to list only one or two decimal places
 				println!("slice {:3}: freq: {:12} |  pos: ({:12}, {:12}), mvec: ({:12}, {:12})", n, slices[n-1].freq, slices[n-1].pos.x, slices[n-1].pos.y, slices[n-1].mvec.x, slices[n-1].mvec.y);
 			}
 		}
