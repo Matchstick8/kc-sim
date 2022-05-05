@@ -1,4 +1,7 @@
+use std::env;
 use rand::Rng;
+use std::time::Duration;
+use std::thread::sleep;
 
 struct Vec2{
     x: f32,
@@ -19,39 +22,44 @@ impl Slice {
 			mvec: mvec
 		}
 	}
-
-	fn get_freq (&self) -> f32 {
-		self.freq
-	}
-
-	/*
-	fn get_pos (&self) -> Tuple {
-		(self.pos.x, self.pos.y)
-	}
-	*/
 }
 
 fn main() {
     let mut rng = rand::thread_rng();
+	let args: Vec<String> = env::args().collect();
 
     // sim  conditions
-    let max_slices = 32; //currently an  arbtitrary number
+	let sim_rate = 144; // "frames per second"
+    let max_slices = 16; //currently an  arbtitrary number
 
     // global conditions
     let mut slices = Vec::new();
 
     // output settings
     let show_global = true;
-    let show_slices = true;
+    let mut show_slices = true;
 
-	// make this into a loop with a consistent interval
+	if args.len() > 1 {
+		if args[1] == "slices" {
+			if args[2] == "show" {
+				show_slices = true;
+			}
+			if args[2] == "hide"{
+				show_slices = false;
+			}
+		}
+	}
+
+	let mut sim_frame = 0;
     loop {
+		sim_frame += 1;
+		sleep(Duration::from_millis(1000/sim_rate));
 		print!("\x1B[2J\x1B[1;1H"); // took 30 minutes to find this, clears the terminal.
 
     	// simulation logic
 		let production_chance: f32 = rng.gen_range(0.0..100.0);
 		
-    	if production_chance < 0.01  && slices.len() < max_slices {
+    	if production_chance < 1.0  && slices.len() < max_slices {
     		let freq = rng.gen::<f32>()*100.0;
     		let pos = Vec2{x: rng.gen::<f32>(), y: rng.gen::<f32>()};
     		let mvec = Vec2{x: rng.gen::<f32>(), y: rng.gen::<f32>()}; 
@@ -80,6 +88,7 @@ fn main() {
     	}
 
 		// terminal output
+		println!("simframe {} ({} fps)", sim_frame, sim_rate);
 		if show_global {
 			let mut max_msg = "";
 			if slices.len() == max_slices {
@@ -96,7 +105,7 @@ fn main() {
 				let posy = format!("{:.2}",  slices[n-1].pos.y);
 				let mvecx = format!("{:.2}",  slices[n-1].mvec.x);
 				let mvecy = format!("{:.2}",  slices[n-1].mvec.y);
-				println!("slice {:3}: freq: {:5} |  pos: ({:12}, {:12})  mvec: ({:5}, {:5})", n,freq, posx, posy, mvecx, mvecy);
+				println!("slice {:3}: freq: {:5} |  pos: ({:12}, {:12})  mvec: ({:5}, {:5})", n, freq, posx, posy, mvecx, mvecy);
 			}
 		}
     }
