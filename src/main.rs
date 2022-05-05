@@ -35,7 +35,7 @@ fn main() {
     let mut rng = rand::thread_rng();
 
     // sim  conditions
-    let max_slices = 16; // currently an  arbtitrary number
+    let max_slices = 32; //currently an  arbtitrary number
 
     // global conditions
     let mut slices = Vec::new();
@@ -51,7 +51,7 @@ fn main() {
     	// simulation logic
 		let production_chance: f32 = rng.gen_range(0.0..100.0);
 		
-    	if production_chance < 0.01 && slices.len() < max_slices {
+    	if production_chance < 0.01  && slices.len() < max_slices {
     		let freq = rng.gen::<f32>()*100.0;
     		let pos = Vec2{x: rng.gen::<f32>(), y: rng.gen::<f32>()};
     		let mvec = Vec2{x: rng.gen::<f32>(), y: rng.gen::<f32>()}; 
@@ -91,7 +91,12 @@ fn main() {
 			println!("--- slices ---------------------------------------------------");
 			for n in 1..slices.len() {
 				// format values to list only one or two decimal places
-				println!("slice {:3}: freq: {:12} |  pos: ({:12}, {:12}), mvec: ({:12}, {:12})", n, slices[n-1].freq, slices[n-1].pos.x, slices[n-1].pos.y, slices[n-1].mvec.x, slices[n-1].mvec.y);
+				let freq = format!("{:.2}",  slices[n-1].freq);
+				let posx = format!("{:.2}",  slices[n-1].pos.x);
+				let posy = format!("{:.2}",  slices[n-1].pos.y);
+				let mvecx = format!("{:.2}",  slices[n-1].mvec.x);
+				let mvecy = format!("{:.2}",  slices[n-1].mvec.y);
+				println!("slice {:3}: freq: {:5} |  pos: ({:12}, {:12})  mvec: ({:5}, {:5})", n,freq, posx, posy, mvecx, mvecy);
 			}
 		}
     }
