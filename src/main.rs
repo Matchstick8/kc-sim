@@ -11,7 +11,9 @@ struct Vec2{
 struct Slice{
 	freq: f32,
 	pos: Vec2,
-	mvec: Vec2
+	mvec: Vec2,
+	dist: f32,
+	bond: bool
 }
 
 impl Slice {
@@ -19,7 +21,9 @@ impl Slice {
 		Slice {
 			freq: freq,
 			pos: pos,
-			mvec: mvec
+			mvec: mvec,
+			dist: 0.0,
+			bond: false
 		}
 	}
 }
@@ -73,18 +77,21 @@ fn main() {
 
 			let direction_chance:f32 = rng.gen_range(0.0..100.0);
 			// please improve, probably with a function but I couldn't be bothered
-    		if direction_chance < 0.005 {
-    			slices[n-1].mvec.x = rng.gen::<f32>();
-    			let negchance_x:i8 = rng.gen_range(0..100);
-    			if negchance_x  <= 50 {
-    				slices[n-1].mvec.x *= -1.0;
-    			}
-    			slices[n-1].mvec.y = rng.gen::<f32>();
-    			let negchance_y:i8 = rng.gen_range(0..100);
-    			if negchance_y <= 50 {
-    				slices[n-1].mvec.y *= -1.0;
-    			}
+    		if direction_chance < 0.01 {
+    			slices[n-1].mvec.x = rng.gen_range(-1.0..1.0);
+    			slices[n-1].mvec.y = rng.gen_range(-1.0..1.0);
     		}
+
+			for i in 1..slices.len() {
+				if n-1 != i-1 {
+					let x_dist = slices[i-1].pos.x - slices[n-1].pos.x;
+					let y_dist = slices[i-1].pos.y - slices[n-1].pos.y;
+					let new_dist = (x_dist*x_dist + y_dist*y_dist).sqrt();
+					if new_dist < slices[n-1].dist {
+						slices[n-1].dist = new_dist;
+					}
+				}
+			}
     	}
 
 		// terminal output
@@ -105,7 +112,8 @@ fn main() {
 				let posy = format!("{:.2}",  slices[n-1].pos.y);
 				let mvecx = format!("{:.2}",  slices[n-1].mvec.x);
 				let mvecy = format!("{:.2}",  slices[n-1].mvec.y);
-				println!("slice {:3}: freq: {:5} |  pos: ({:12}, {:12})  mvec: ({:5}, {:5})", n, freq, posx, posy, mvecx, mvecy);
+				let dist = format!("{:.2}", slices[n-1].dist);
+				println!("slice {:3}: freq: {:5} |  pos: ({:12}, {:12})  mvec: ({:5}, {:5}) | nearest slice: {:5}", n, freq, posx, posy, mvecx, mvecy, dist);
 			}
 		}
     }
