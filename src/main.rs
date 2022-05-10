@@ -34,7 +34,8 @@ fn main() {
 
     // sim  conditions
 	let sim_rate = 144; // "frames per second"
-    let max_slices = 16; //currently an  arbtitrary number
+    let max_slices = 16; //currently an arbtitrary number
+    let mut instant_gen = false; // currently not a good idea to use
 
     // global conditions
     let mut slices = Vec::new();
@@ -52,6 +53,9 @@ fn main() {
 				show_slices = false;
 			}
 		}
+		if args[1] == "instant" {
+			instant_gen = true;
+		}
 	}
 
 	let mut sim_frame = 0;
@@ -61,31 +65,41 @@ fn main() {
 		print!("\x1B[2J\x1B[1;1H"); // took 30 minutes to find this, clears the terminal.
 
     	// simulation logic
-		let production_chance: f32 = rng.gen_range(0.0..100.0);
-		
-    	if production_chance < 1.0  && slices.len() < max_slices {
-    		let freq = rng.gen::<f32>()*100.0;
-    		let pos = Vec2{x: rng.gen::<f32>(), y: rng.gen::<f32>()};
-    		let mvec = Vec2{x: rng.gen::<f32>(), y: rng.gen::<f32>()}; 
-    		let slice = Slice::new(freq, pos, mvec);
-    		slices.push(slice);
+    	if instant_gen {
+    		if slices.len() < max_slices {
+	    		for _n in 0..max_slices {
+		    		let freq = rng.gen::<f32>()*100.0;
+		    		let pos = Vec2{x: rng.gen::<f32>(), y: rng.gen::<f32>()};
+		    		let mvec = Vec2{x: rng.gen::<f32>(), y: rng.gen::<f32>()}; 
+		    		let slice = Slice::new(freq, pos, mvec);
+		    		slices.push(slice);
+	    		}
+    		}
     	}
+    	else {
+	    	let production_chance: f32 = rng.gen_range(0.0..100.0);
+	    	if production_chance < 1.0  && slices.len() < max_slices {
+	    		let freq = rng.gen::<f32>()*100.0;
+	    		let pos = Vec2{x: rng.gen::<f32>(), y: rng.gen::<f32>()};
+	    		let mvec = Vec2{x: rng.gen::<f32>(), y: rng.gen::<f32>()}; 
+	    		let slice = Slice::new(freq, pos, mvec);
+	    		slices.push(slice);
+	    	}
+	    }
 
     	for n in 0..slices.len() {
     		slices[n].pos.x += slices[n].mvec.x;
     		slices[n].pos.y += slices[n].mvec.y;
 
-			let direction_chance:f32 = rng.gen_range(0.0..100.0);
-			// please improve, probably with a function but I couldn't be bothered
-    		if direction_chance < 1.0 {
+    		if slices[n].dist < 3.0 {
     			slices[n].mvec.x = rng.gen_range(-1.0..1.0);
     			slices[n].mvec.y = rng.gen_range(-1.0..1.0);
     		}
 
 			for i in 0..slices.len() {	
 				if i != n {
-					let x_dist = slices[i].pos.x - slices[n].pos.x;
-					let y_dist = slices[i].pos.y - slices[n].pos.y;
+					let x_dist = slices[n].pos.x - slices[i].pos.x;
+					let y_dist = slices[n].pos.y - slices[i].pos.y;
 					let new_dist = (x_dist*x_dist + y_dist*y_dist).sqrt();
 					if slices[n].dist == 0.0 {
 						slices[n].dist = new_dist;
@@ -94,6 +108,10 @@ fn main() {
 						if new_dist < slices[n].dist {
 							slices[n].dist = new_dist;
 						}
+					}
+					if new_dist < 3.0 && slices[n].freq-slices[i].freq < 5.0 {
+						slices[n].bond = true;
+						slices[i].bond = true;
 					}
 				}						
 			}
@@ -118,7 +136,7 @@ fn main() {
 				let mvecx = format!("{:.2}",  slices[n].mvec.x);
 				let mvecy = format!("{:.2}",  slices[n].mvec.y);
 				let dist = format!("{:.2}", slices[n].dist);
-				println!("slice {:3}: freq: {:5} |  pos: ({:12}, {:12})  mvec: ({:5}, {:5}) | nearest slice: {:5}", n, freq, posx, posy, mvecx, mvecy, dist);
+				println!("slice {:3}: freq: {:5} |  pos: ({:12}, {:12})  mvec: ({:5}, {:5}) | nearest slice: {:5}  bonded: {}", n, freq, posx, posy, mvecx, mvecy, dist, slices[n].bond);
 			}
 		}
     }
