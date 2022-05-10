@@ -71,26 +71,31 @@ fn main() {
     		slices.push(slice);
     	}
 
-    	for n in 1..slices.len() {
-    		slices[n-1].pos.x += slices[n-1].mvec.x;
-    		slices[n-1].pos.y += slices[n-1].mvec.y;
+    	for n in 0..slices.len() {
+    		slices[n].pos.x += slices[n].mvec.x;
+    		slices[n].pos.y += slices[n].mvec.y;
 
 			let direction_chance:f32 = rng.gen_range(0.0..100.0);
 			// please improve, probably with a function but I couldn't be bothered
-    		if direction_chance < 0.01 {
-    			slices[n-1].mvec.x = rng.gen_range(-1.0..1.0);
-    			slices[n-1].mvec.y = rng.gen_range(-1.0..1.0);
+    		if direction_chance < 1.0 {
+    			slices[n].mvec.x = rng.gen_range(-1.0..1.0);
+    			slices[n].mvec.y = rng.gen_range(-1.0..1.0);
     		}
 
-			for i in 1..slices.len() {
-				if n-1 != i-1 {
-					let x_dist = slices[i-1].pos.x - slices[n-1].pos.x;
-					let y_dist = slices[i-1].pos.y - slices[n-1].pos.y;
+			for i in 0..slices.len() {	
+				if i != n {
+					let x_dist = slices[i].pos.x - slices[n].pos.x;
+					let y_dist = slices[i].pos.y - slices[n].pos.y;
 					let new_dist = (x_dist*x_dist + y_dist*y_dist).sqrt();
-					if new_dist < slices[n-1].dist {
-						slices[n-1].dist = new_dist;
+					if slices[n].dist == 0.0 {
+						slices[n].dist = new_dist;
 					}
-				}
+					else {
+						if new_dist < slices[n].dist {
+							slices[n].dist = new_dist;
+						}
+					}
+				}						
 			}
     	}
 
@@ -105,14 +110,14 @@ fn main() {
 		}
 		if show_slices {
 			println!("--- slices ---------------------------------------------------");
-			for n in 1..slices.len() {
+			for n in 0..slices.len() {
 				// format values to list only one or two decimal places
-				let freq = format!("{:.2}",  slices[n-1].freq);
-				let posx = format!("{:.2}",  slices[n-1].pos.x);
-				let posy = format!("{:.2}",  slices[n-1].pos.y);
-				let mvecx = format!("{:.2}",  slices[n-1].mvec.x);
-				let mvecy = format!("{:.2}",  slices[n-1].mvec.y);
-				let dist = format!("{:.2}", slices[n-1].dist);
+				let freq = format!("{:.2}",  slices[n].freq);
+				let posx = format!("{:.2}",  slices[n].pos.x);
+				let posy = format!("{:.2}",  slices[n].pos.y);
+				let mvecx = format!("{:.2}",  slices[n].mvec.x);
+				let mvecy = format!("{:.2}",  slices[n].mvec.y);
+				let dist = format!("{:.2}", slices[n].dist);
 				println!("slice {:3}: freq: {:5} |  pos: ({:12}, {:12})  mvec: ({:5}, {:5}) | nearest slice: {:5}", n, freq, posx, posy, mvecx, mvecy, dist);
 			}
 		}
